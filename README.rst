@@ -1,7 +1,7 @@
 HMC5883L Raspberry Pi Micropython
 =================================
 
-A class for working with the HMC5883L_ 3-axis digital compass IC with
+A class for working with the HMC5883L_ 3-axis magnetomter / digital compass IC with
 Micropython on the Raspberry Pi Pico.
 
 This project is a fork of: https://github.com/gvalkov/micropython-esp8266-hmc5883l which targets ESP.
