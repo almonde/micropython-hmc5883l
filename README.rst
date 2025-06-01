@@ -1,28 +1,35 @@
-HMC5883L ESP8266 Micropython
+HMC5883L Raspberry Pi Micropython
 ============================
 
 A class for working with the HMC5883L_ 3-axis digital compass IC with
-micropython on the esp8266.
+micropython on the Raspberry Pi Pico.
+
+A fork of this project designed for ESP: https://github.com/gvalkov/micropython-esp8266-hmc5883l
 
 
 Usage
 -----
 
-Upload `hmc5883l.py`_ to the micro-controller (e.g. you can use
-`adafruit-ampy`_) and use as:
+Upload `hmc5883l.py` to the Raspberry Pi Pico:
 
 .. code-block:: python
-
+  from machine import I2C, Pin
   from hmc5883l import HMC5883L
 
-  sensor = HMC5883L(scl=4, sda=5)
+  # setup an i2c instance, can pass to multiple sensors on bus if required
+  # ID = 0 or 1 for Raspberry Pi Pico, set pins as needed
+  i2c = I2C(1, scl=Pin(15), sda=Pin(14), freq=400000)
 
-  x, y, z = sensor.read()
-  print(sensor.format_result(x, y, z))
+  # Create an instance of the HMC5883L, pass it the i2c object and
+  # local mag declination as a tuple if degrees and minutes  
+  mags = HMC5883L(i2c, declination=(0, 0))
+
+  x, y, z = mags.read()
+  print(mags.format_result(x, y, z))
 
 The above will produce a line similar to::
 
-  X: -300.8398, Y: 106.7199, Z: -3768.3181, Heading: 160° 28′
+  X: -300.8398, Y: 106.7199, Z: -3768.3181, Heading: 160 degrees 28 mins
 
 That's about it - everything else can be figured out from the code and the links below.
 
@@ -31,7 +38,7 @@ Resources
 ---------
 
 - `Datasheet <https://cdn-shop.adafruit.com/datasheets/HMC5883L_3-Axis_Digital_Compass_IC.pdf>`_
-- `Sparkfun tutorial <https://www.sparkfun.com/tutorials/301>`_
+- `Knock-off I bought from Amazon <https://www.amazon.com/dp/B0DPG3KVSN>`_
 - `HMC5883L driver for the PyBoard <https://github.com/CRImier/hmc5883l>`_
 
 
