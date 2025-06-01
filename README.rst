@@ -16,12 +16,12 @@ Upload ``hmc5883l.py`` to the Raspberry Pi Pico:
    from machine import I2C, Pin
    from hmc5883l import HMC5883L
 
-   # setup an i2c instance, can pass to multiple sensors on bus if required
+   # setup an i2c instance, can pass this to multiple sensors on the bus as required
    # ID = 0 or 1 for Raspberry Pi Pico, set pins as needed
    i2c = I2C(1, scl=Pin(15), sda=Pin(14), freq=400000)
 
    # Create an instance of the HMC5883L, pass it the i2c object and
-   # local mag declination as a tuple if degrees and minutes  
+   # local mag declination as a tuple in degrees and minutes  
    mags = HMC5883L(i2c, declination=(0, 0))
 
    x, y, z = mags.read()
