@@ -80,9 +80,14 @@ class HMC5883L:
 
         return x, y, z
     
-    def total_field_strength(self) -> float:
+    def total_field_strength(self, x, y, z) -> float:
         """
-        Read the magnetometers and calculate the total magnetic field strength.
+        Calculate the total magnetic field strength.
+        
+        Args:
+            x (float): Magnetic field component in X direction.
+            y (float): Magnetic field component in Y direction.
+            z (float): Magnetic field component in Z direction.
 
         Returns:
             float: total magnetic field in the same units as x, y, z
@@ -90,6 +95,23 @@ class HMC5883L:
         x, y, z = self.read()
         
         return math.sqrt(x*x + y*y + z*z)
+    
+    def magnetic_dip(self,x: float, y:float, z:float) -> float:
+        """
+        Calculate the magnetic dip angle.
+        Args:
+            x (float): Magnetic field component in X direction.
+            y (float): Magnetic field component in Y direction.
+            z (float): Magnetic field component in Z direction.
+
+        Returns:
+            float: Magnetic dip angle in degrees
+        """
+
+        H = math.sqrt(x*x + y*y)
+        dip_rad = math.atan2(z, H)   
+        dip_deg = math.degrees(dip_rad)
+        return dip_deg
 
 
     def heading(self, x, y):
