@@ -79,6 +79,18 @@ class HMC5883L:
         z = round(z * self.gain, 4)
 
         return x, y, z
+    
+    def total_field_strength(self) -> float:
+        """
+        Read the magnetometers and calculate the total magnetic field strength.
+
+        Returns:
+            float: total magnetic field in the same units as x, y, z
+        """
+        x, y, z = self.read()
+        
+        return math.sqrt(x*x + y*y + z*z)
+
 
     def heading(self, x, y):
         heading_rad = math.atan2(y, x)
