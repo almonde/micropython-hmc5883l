@@ -13,26 +13,52 @@ class HMC5883L:
         '5.6':  (6 << 5, 3.03),
         '8.1':  (7 << 5, 4.35)
     }
-
-    def __init__(self, i2c, address=0x1E, gauss='1.3', declination=(0, 0)):
+    
+    __sample_rate_bits__ = {
+        0.75: 0b000,
+        1.5:  0b001,
+        3:    0b010,
+        7.5:  0b011,
+        15:   0b100,
+        30:   0b101,
+        75:   0b110,
+    }
+    
+    def __init__(self, i2c, address=0x1E, gauss='1.3', declination=(0,0), sample_rate=15, samples_avg=8):
         self.i2c = i2c
         self.address = address
-
-        # Configure Register A: 8 samples, 15Hz, normal measurement
-        self.i2c.writeto_mem(self.address, 0x00, pack('B', 0b01110000))
-
-        # Configure Register B: gain
+        
+        # Validate sample rate
+        if sample_rate not in self.__sample_rate_bits__:
+            raise ValueError("Invalid sample_rate, valid options: " + ", ".join(str(k) for k in self.__sample_rate_bits__))
+        
+        # Samples averaged (1, 2, 4, 8) -> bits 7-5
+        samples_map = {1: 0b000, 2: 0b001, 4: 0b010, 8: 0b011}
+        if samples_avg not in samples_map:
+            raise ValueError("Invalid samples_avg, valid options: 1, 2, 4, 8")
+        
+        samples_bits = samples_map[samples_avg] << 5
+        rate_bits = self.__sample_rate_bits__[sample_rate] << 2
+        mode_bits = 0b00  # normal measurement
+        
+        config_reg_a = samples_bits | rate_bits | mode_bits
+        
+        # Write to config register A
+        self.i2c.writeto_mem(self.address, 0x00, pack('B', config_reg_a))
+        
+        # Set gain (Config Register B)
         reg_value, self.gain = self.__gain__[gauss]
         self.i2c.writeto_mem(self.address, 0x01, pack('B', reg_value))
-
+        
         # Mode Register: continuous measurement mode
         self.i2c.writeto_mem(self.address, 0x02, pack('B', 0x00))
+        
+        # Declination in radians
+        self.declination = (declination[0] + declination[1]/60) * math.pi / 180
+        
+        # Buffer for data
+        self.data = array('B', [0]*6)
 
-        # Convert declination to radians
-        self.declination = (declination[0] + declination[1] / 60) * math.pi / 180
-
-        # Allocate buffer
-        self.data = array('B', [0] * 6)
 
     def read(self):
         data = self.data
